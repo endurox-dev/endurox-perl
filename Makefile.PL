@@ -73,12 +73,13 @@ EOS
 if ( $os eq 'MSWin32' ) {
 	$string = $string . <<EOS;
 	set CC="$Config{cc} $libpaths"
-	buildserver -o \$@ -k -s "PERL" -f "-DTMMAINEXIT \$(INST_STATIC)"
+	#buildserver -o \$@ -k -s "PERL" -f "-DTMMAINEXIT \$(INST_STATIC)"
+	buildserver -o \$@ -k -s "PERL" -f "EnduroxConstants.o Endurox.o perlxsi.o \$(INST_STATIC)"
 EOS
 }
 else {
 	$string = $string . <<EOS;
-	CC="$Config{cc} $libpaths"; export CC; \$(NDRX_HOME)/bin/buildserver -o \$@ -s ":PERL" -f "\$(INST_DYNAMIC)" -f "\$(PERL_EMBED_LIBS)"
+	CC="$Config{cc} $libpaths"; export CC; \$(NDRX_HOME)/bin/buildserver -o \$@ -s ":PERL" -f "EnduroxConstants.o Endurox.o perlxsi.o \$(PERL_EMBED_LIBS)"
 EOS
 }
 

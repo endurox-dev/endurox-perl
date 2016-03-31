@@ -94,7 +94,7 @@ while ( $index < $numargs )
             }
 
             $fldnum += $base;
-            $bfldid = Fmkbbadfld( $bfldtype, $fldnum );
+            $bfldid = Bmkfldid( $bfldtype, $fldnum );
             $fields{$fldname} = $bfldid;
         }
     }

@@ -73,7 +73,6 @@ require AutoLoader;
     TPGETANY
     TPGETANY	
     TPGOTSIG
-    TPINITNEED	
     TPMULTICONTEXTS
     TPNOAUTH
     TPNOBLOCK
@@ -151,11 +150,8 @@ require AutoLoader;
     tpadvertise
     tpalloc	
     tpbegin	
-    tpbroadcast	
     tpcall
     tpcancel
-    tpchkauth
-    tpchkunsol
     tpclose
     tpcommit
     tpconnect
@@ -166,23 +162,17 @@ require AutoLoader;
     tperrno	
     tpexport	
     tpfree	
-    tpgetctxt
     tpgetlev
     tpgetrply
-    tpgprio
-    tpimport
     tpinit
-    tpnotify
     tpopen
     tppost
     tprealloc
     tprecv
     tpresume
-    tpscmt
     tpsend
     tpsetctxt
     tpsetunsol	
-    tpsprio
     tpstrerror	
     tpsubscribe
     tpsuspend
@@ -192,47 +182,12 @@ require AutoLoader;
     userlog
 
     Badd
-    Fappend32
     Berror
     Bget
     Bindex
-    Fmkbbadfld
+    Bmkfldid
     Bprint
     Bstrerror
-
-    MIB_ALLFLAGS
-    MIB_LOCAL
-    MIB_PREIMAGE
-    MIB_SELF
-    MIBATT_KEYFIELD
-    MIBATT_LOCAL
-    MIBATT_NEWONLY
-    MIBATT_REGEXKEY
-    MIBATT_REQUIRED
-    MIBATT_RUNTIME
-    MIBATT_SETKEY
-    QMIB_FORCECLOSE
-    QMIB_FORCEDELETE
-    QMIB_FORCEPURGE
-    TAEAPP
-    TAECONFIG
-    TAEINVAL
-    TAEOS
-    TAEPERM
-    TAEPREIMAGE
-    TAEPROTO
-    TAEREQUIRED
-    TAESUPPORT
-    TAESYSTEM
-    TAEUNIQ
-    TAOK
-    TAPARTIAL
-    TAUPDATED
-    TMIB_ADMONLY
-    TMIB_APPONLY
-    TMIB_CONFIG
-    TMIB_GLOBAL
-    TMIB_NOTIFY
 
     SIGABRT
     SIGALRM
@@ -752,7 +707,7 @@ This version of the perl module also includes a useful utility script, mkfldpm32
 
 =head1 Exported constants
     
-    BBBADFLDID
+    BBADFLDID
     BFLD_CARRAY
     BFLD_CHAR
     BFLD_DOUBLE
@@ -848,32 +803,6 @@ This version of the perl module also includes a useful utility script, mkfldpm32
     TPQQOSDEFAULTPERSIST
     TPQQOSPERSISTENT
     TPQQOSNONPERSISTENT
-
-    TPKEY_SIGNATURE
-    TPKEY_DECRYPT
-    TPKEY_ENCRYPT
-    TPKEY_VERIFICATION
-    TPKEY_AUTOSIGN
-    TPKEY_AUTOENCRYPT
-    TPKEY_REMOVE
-    TPKEY_REMOVEALL
-    TPKEY_VERIFY
-    TPEX_STRING
-    TPSEAL_OK
-    TPSEAL_PENDING
-    TPSEAL_EXPIRED_CERT
-    TPSEAL_REVOKED_CERT
-    TPSEAL_TAMPERED_CERT
-    TPSEAL_UNKNOWN
-    TPSIGN_OK
-    TPSIGN_PENDING
-    TPSIGN_EXPIRED
-    TPSIGN_EXPIRED_CERT
-    TPSIGN_POSTDATED
-    TPSIGN_REVOKED_CERT
-    TPSIGN_TAMPERED_CERT
-    TPSIGN_TAMPERED_MESSAGE
-    TPSIGN_UNKNOWN
 
 =head1 AUTHOR
 

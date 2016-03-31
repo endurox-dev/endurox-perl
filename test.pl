@@ -41,7 +41,7 @@ print "ok 1\n";
 ###################################################################
 # TEST 1: tpalloc
 my $password = "00000031". "\377" . "0" . "\377" . "utp_tester1" . "\377"  . "utputp1" . "\377";
-my $buffer = tpalloc( "TPINIT", "", TPINITNEED( length($password) ) );
+my $buffer = tpalloc( "TPINIT", "", 100 );
 if ( $buffer == undef ) {
     die "tpalloc failed: " . tpstrerror(tperrno) . "\n";
 }
@@ -209,26 +209,10 @@ if ( $rval == -1 ) {
 printf( "ostr = $ostr\n" );
 printf( "olen = $olen\n" );
 
-# TEST tpimport
-$importbuf = tpalloc( "UBF", 0, 1024 );
-$rval = tpimport( $ostr, $olen, $importbuf, $olen, 0 );
-if ( $rval == -1 ) {
-    die ( "tpimport failed: " . tpstrerror(tperrno) . "\n" );
-}
-printf( "After tpimport...\n" );
-Bprint( $importbuf );
-
 #$importbuf = tprealloc( $importbuf, 2056 );
 $rval = Bget( $importbuf, TA_CLIENTID, 0, $ta_clientid, $len );
 printf( "TA_CLIENTID = $ta_clientid\n" );
 printf( "done\n" );
-
-# TEST tpgetctxt
-$rval = tpgetctxt( $ctxt, 0 );
-if ( $rval == -1 ) {
-    die ( "tpgetctxt failed: " . tpstrerror(tperrno) . "\n" );
-}
-printf( "ctxt = $ctxt\n" );
 
 # TEST tpgetlev
 $rval = tpgetlev();
@@ -236,33 +220,6 @@ if ( $rval == -1 ) {
     die ( "tpgetlev failed: " . tpstrerror(tperrno) . "\n" );
 }
 printf( "tpgetlev returned $rval\n" );
-
-# TEST tpgprio
-$rval = tpgprio();
-if ( $rval == -1 ) {
-    die ( "tpgprio failed: " . tpstrerror(tperrno) . "\n" );
-}
-printf( "tpgprio returned $rval\n" );
-
-# TEST tpscmt
-$rval = tpscmt( TP_CMT_LOGGED );
-if ( $rval == -1 ) {
-    die ( "tpscmt failed: " . tpstrerror(tperrno) . "\n" );
-}
-printf( "tpscmt returned $rval\n" );
-
-
-# TEST tpsetunsol
-tpsetunsol( \&pants );
-$clientid = CLIENTID_PTR::new();
-$rval = tpconvert( $ta_clientid, $clientid, TPCONVCLTID );
-$unsolbuf = tpalloc( "UBF", 0, 1024 );
-Badd( $unsolbuf, TA_CLASS, "Fat mofo", 0 );
-$rval = tpnotify( $clientid, $unsolbuf, 0, 0 );
-if ( $rval == -1 ) {
-    die ( "tpnotify failed: " . tpstrerror(tperrno) . "\n" );
-}
-$clientid = 0;
 
 # TEST Usignal
 Usignal( 17, \&sigusr2 );

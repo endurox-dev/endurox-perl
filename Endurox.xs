@@ -28,7 +28,7 @@
  *----------------------------------------------------------------------------*/
 void InitEnduroxConstants();
 long getEnduroxConstant( char *name );
-void xs_init _((void));
+void xs_init _((void)); 
 
 /*----------------------------------------------------------------------------
  * type debinitions
@@ -55,50 +55,6 @@ static HV * SignalHandlerMap      = (HV *)NULL;
 /*----------------------------------------------------------------------------
  * 'C' functions used by this module
  *----------------------------------------------------------------------------*/
-void  unsolicited_message_handler( char *data, long len, long flags )
-{
-    long context = 0;
-    long nullContext = /*TPNULLCONTEXT*/0;
-    int rval;
-    dSP ;
-    SV ** sv;
-
-    /* get the context */
-    rval = tpgetctxt( &context, 0 );
-
-    /* get the callback handler associated with this context */
-    sv = hv_fetch( UnsolicitedHandlerMap, 
-                   (char *)&context,
-                   sizeof(context),
-                   FALSE
-                   );
-
-    if ( sv == (SV**)NULL )
-    {
-        /* should search for the TPNULLCONTEXT entry */
-        sv = hv_fetch( UnsolicitedHandlerMap, 
-                       (char *)&nullContext,
-                       sizeof(nullContext),
-                       FALSE
-                       );
-
-        if ( sv == (SV**)NULL )
-            croak( "Could not find unsolicted message handler for context %d "
-                   " or the NULL context.\n",
-                   context
-                   );
-    }
-
-    PUSHMARK( SP );
-    XPUSHs( newRV_inc( sv_2mortal(newSViv((IV)data)) ) );
-    XPUSHs( sv_2mortal(newSViv(len)) );
-    XPUSHs( sv_2mortal(newSViv(flags) ) );
-    PUTBACK ;
-
-    /* call the Perl sub */
-    perl_call_sv( *sv, G_DISCARD );
-}
-
 /*
  * Comment this function out because it get_hv doesn't work with
  * perl 5.005_03 on solaris.  I shouldn't really have this function
@@ -226,10 +182,9 @@ int tpsvrinit( int argc, char *argv[] )
     }
 
     perl_construct( embedded_perl );
-/* mv  porting to enduro/x: 
+/* mv  porting to enduro/x: */
     rc = perl_parse( embedded_perl, xs_init, 2, embedding, NULL );
-*/
-    rc = perl_parse( embedded_perl, NULL, 2, embedding, NULL );
+    /* rc = perl_parse( embedded_perl, NULL, 2, embedding, NULL );*/
     if ( rc != 0 )
     {
         userlog( "Failed to parse perlsvr.pl" );
@@ -239,7 +194,7 @@ int tpsvrinit( int argc, char *argv[] )
     }
 
     perl_run( embedded_perl );
-    return 1;
+    return 0;
 }
 
 EXTERN_C
@@ -380,14 +335,6 @@ constant( name, arg )
     OUTPUT:
         RETVAL
 
-long
-TPINITNEED( datalen )
-    long datalen
-    CODE:
-        RETVAL = TPINITNEED( datalen );
-    OUTPUT:
-        RETVAL
-
 int
 tpabort( flags )
     long flags
@@ -446,62 +393,8 @@ tpbegin( timeout, flags )
     long flags
 
 int
-tpbroadcast( lmid, usrname, cltname, data, len, flags )
-    SV * lmid
-    SV * usrname
-    SV * cltname
-    SV * data
-    long len
-    long flags
-    PREINIT:
-    char * lmid_    = NULL;
-    char * usrname_ = NULL;
-    char * cltname_ = NULL;
-    CHAR_PTR data_  = NULL;
-    STRLEN  n_a;
-    CODE:
-        if ( lmid != &PL_sv_undef )
-        {
-            if ( !SvPOK(lmid) )
-	        croak("lmid is not a string");
-            lmid_ = SvPV( lmid, n_a );
-        }
-
-        if ( usrname != &PL_sv_undef )
-        {
-            if ( !SvPOK(usrname) )
-	        croak("usrname is not a string");
-            usrname_ = SvPV( usrname, n_a );
-        }
-
-        if ( cltname != &PL_sv_undef )
-        {
-            if ( !SvPOK(cltname) )
-	        croak("cltname is not a string");
-            cltname_ = SvPV( cltname, n_a );
-        }
-
-        if ( data != &PL_sv_undef )
-        {
-            if (!SvROK(data)) 
-                croak("data is not a reference");
-            data_ = (CHAR_PTR)SvIV((SV*)SvRV(data));
-        }
-
-        RETVAL = tpbroadcast( lmid_, usrname_, cltname_, data_, len, flags );
-
-    OUTPUT:
-        RETVAL
-
-int
 tpcancel( cd )
     int cd
-
-int
-tpchkauth()
-
-int
-tpchkunsol()
 
 int
 tpclose()
@@ -599,16 +492,6 @@ tpfree( ptr )
 	sv_setiv(SvRV(ptr), NULL);
 
 int
-tpgetctxt( context, flags )
-    long context
-    long flags
-    CODE:
-        RETVAL = tpgetctxt( &context, flags );
-    OUTPUT:
-        RETVAL
-        context
-
-int
 tpgetlev()
 
 int
@@ -635,42 +518,8 @@ tpgetrply( cd, odata, olen, flags )
         olen
 
 int
-tpgprio()
-
-int
-tpimport( istr, ilen, odata, olen, flags )
-    char *      istr
-    long        ilen
-    SV *        odata
-    long        olen
-    long        flags
-    PREINIT:
-    char *obuf;
-    CODE:
-	if (SvROK(odata)) {
-	    IV tmp = SvIV((SV*)SvRV(odata));
-	    obuf = (CHAR_PTR) tmp;
-	}
-	else
-	    croak("odata is not a reference");
-
-        olen = 0;
-        RETVAL = tpimport( istr, ilen, &obuf, &olen, flags );
-        sv_setiv( SvRV(odata), (IV)obuf );
-    OUTPUT:
-        RETVAL
-        olen
-
-int
 tpinit( tpinitdata )
     TPINIT_PTR tpinitdata
-
-int
-tpnotify( clientid, data, len, flags )
-    CLIENTID_PTR clientid
-    CHAR_PTR     data
-    long         len
-    long         flags
 
 int
 tpopen()
@@ -748,10 +597,6 @@ tpresume( tranid, flags )
     long flags
 
 int
-tpscmt( flags )
-    long flags
-
-int
 tpsend( cd, data, len, flags, revent )
     int cd
     SV * data
@@ -772,35 +617,6 @@ tpsend( cd, data, len, flags, revent )
     OUTPUT:
         RETVAL
         revent
-
-int
-tpsetctxt( context, flags )
-    long context
-    long flags
-
-void
-tpsetunsol( callback )
-    SV * callback
-    PREINIT:
-    long context = 0;
-    int rval = 0;
-    CODE:
-    if ( UnsolicitedHandlerMap == (HV*)NULL )
-        UnsolicitedHandlerMap = newHV();
-
-    rval = tpgetctxt( &context, 0 );
-    hv_store( UnsolicitedHandlerMap, 
-              (char*)&context, 
-              sizeof(context), 
-              newSVsv(callback),
-              0
-              );
-    tpsetunsol( unsolicited_message_handler );
-
-int
-tpsprio( prio, flags )
-    int prio
-    long flags
 
 char *
 tpstrerror( error )
@@ -1045,7 +861,7 @@ Bprint( ubfh )
     UBFH_PTR ubfh
 
 BFLDID
-Fmkbbadfld( type, num )
+Bmkfldid( type, num )
     int type
     BFLDID num
 
