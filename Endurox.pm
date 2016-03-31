@@ -1,13 +1,13 @@
 package TPINIT_PTR; 
 @ISA = qw(CHAR_PTR);
 
-package FBFR32_PTR; 
+package UBFH_PTR; 
 @ISA = qw(CHAR_PTR);
 
 package STRING_PTR; 
 @ISA = qw(CHAR_PTR);
 
-package Tuxedo;
+package Endurox;
 
 use strict;
 use Carp;
@@ -23,16 +23,16 @@ require AutoLoader;
 # names by default without a very good reason. Use EXPORT_OK instead.
 # Do not simply export all your public functions/methods/constants.
 @EXPORT = qw(
-    BADFLDID
-    FLD_CARRAY
-    FLD_CHAR
-    FLD_DOUBLE
-    FLD_FLOAT
-    FLD_FML32
-    FLD_LONG
+    BBBADFLDID
+    BFLD_CARRAY
+    BFLD_CHAR
+    BFLD_DOUBLE
+    BFLD_FLOAT
+    FLD_UBF
+    BFLD_LONG
     FLD_PTR
-    FLD_SHORT
-    FLD_STRING
+    BFLD_SHORT
+    BFLD_STRING
     FLD_VIEW32
     TP_CMT_COMPLETE
     TP_CMT_LOGGED
@@ -163,7 +163,6 @@ require AutoLoader;
     tpdequeue
     tpdiscon
     tpenqueue	
-    tperrordetail	
     tperrno	
     tpexport	
     tpfree	
@@ -185,34 +184,21 @@ require AutoLoader;
     tpsetunsol	
     tpsprio
     tpstrerror	
-    tpstrerrordetail
     tpsubscribe
     tpsuspend
     tpterm
     tptypes	
     tpunsubscribe	
-    tuxgetenv
-    tuxputenv
-    tx_begin
-    tx_close
-    tx_commit
-    tx_info
-    tx_open
-    tx_rollback
-    tx_set_commit_return
-    tx_set_transaction_control
-    tx_set_transaction_timeout
-    Usignal
     userlog
 
-    Fadd32
+    Badd
     Fappend32
-    Ferror32
-    Fget32
-    Findex32
-    Fmkfldid32
-    Fprint32
-    Fstrerror32
+    Berror
+    Bget
+    Bindex
+    Fmkbbadfld
+    Bprint
+    Bstrerror
 
     MIB_ALLFLAGS
     MIB_LOCAL
@@ -291,7 +277,7 @@ sub AUTOLOAD {
 	    goto &AutoLoader::AUTOLOAD;
 	}
 	else {
-		croak "Your vendor has not defined Tuxedo macro $constname";
+		croak "Your vendor has not defined Endurox macro $constname";
 	}
     }
     no strict 'refs';
@@ -306,7 +292,7 @@ sub AUTOLOAD {
     goto &$AUTOLOAD;
 }
 
-bootstrap Tuxedo $VERSION;
+bootstrap Endurox $VERSION;
 
 
 # Preloaded methods go here.
@@ -319,11 +305,11 @@ __END__
 
 =head1 NAME
 
-Tuxedo - Perl extension module for Tuxedo
+Endurox - Perl extension module for Endurox
 
 =head1 SYNOPSIS
 
-use Tuxedo;
+use Endurox;
 
 =head1 DESCRIPTION
 
@@ -333,11 +319,11 @@ This module provides the following functionality...
 
 =item * B<'C' style interface>
 
-The Tuxedo perl module gives you access to almost all of the tuxedo 8.1 apis from perl.  In most cases you can take the C API you already familiar with, apply perl semantics to it, and write working tuxedo programs in perl.
+The Endurox perl module gives you access to almost all of the endurox 8.1 apis from perl.  In most cases you can take the C API you already familiar with, apply perl semantics to it, and write working endurox programs in perl.
 
 =item * B<Object wrapping of C structures>
 
-Many tuxedo functions take pointers to C structures as function parameters.  To preserve the C interface, this module provides perl objects that encapsulate the C structures used by tuxedo.  These objects allow the user to create and manipulate the elements of these C structures, and these objects are then passed as parameters to the perl version of these tuxedo C functions.
+Many endurox functions take pointers to C structures as function parameters.  To preserve the C interface, this module provides perl objects that encapsulate the C structures used by endurox.  These objects allow the user to create and manipulate the elements of these C structures, and these objects are then passed as parameters to the perl version of these endurox C functions.
 
 =item * B<buffer management>
 
@@ -347,26 +333,26 @@ Perl classes exist for each buffer type to allow for easy manipulation of buffer
 
 perl subs can be registered as unsolicited message handlers and signal handlers.
 
-=item * B<FML/FML32 field table support>
+=item * B<UBF/UBF field table support>
 
-This module includes the mkfldpm32.pl script that is the perl equivalent of the tuxedo mkfldhdr32 program.  It accepts a field table file as input and produces a *.pm file that can be included in a perl script, so field identifiers can be referenced by id.
+This module includes the mkfldpm32.pl script that is the perl equivalent of the endurox mkfldhdr32 program.  It accepts a field table file as input and produces a *.pm file that can be included in a perl script, so field identifiers can be referenced by id.
 
-=item * B<perl tuxedo services>
+=item * B<perl endurox services>
 
-You can now write tuxedo services in perl.  When you build the Tuxedo module, it should create a tuxedo server called PERLSVR.  This is a tuxedo server that contains an embedded perl interpretor for executing perl tuxedo services.  When PERLSVR boots up, it parses the perlsvr.pl script, which at the moment it expects to find in its working directory.  The location of perlsvr.pl will be configurable in a future version.  The perlsvr.pl script is run as the tpsvrinit routine.  You can modify perlsvr.pl to define any subs you want to be tuxedo services and advertise these subs.  
+You can now write endurox services in perl.  When you build the Endurox module, it should create a endurox server called PERLSVR.  This is a endurox server that contains an embedded perl interpretor for executing perl endurox services.  When PERLSVR boots up, it parses the perlsvr.pl script, which at the moment it expects to find in its working directory.  The location of perlsvr.pl will be configurable in a future version.  The perlsvr.pl script is run as the tpsvrinit routine.  You can modify perlsvr.pl to define any subs you want to be endurox services and advertise these subs.  
 
-There are a few rules for writing subs that are to be run as tuxedo services. 
+There are a few rules for writing subs that are to be run as endurox services. 
 
 
 1) They must accept a single input parameter which is a reference to a TPSVCINFO_PTR object.
 
-2) They must return 5 parameters corresponding to the parameters of the tpreturn tuxedo function.  You don't call tpreturn directly from a perl sub tuxedo service.  When the sub returns, the PERLSVR will extract the return values from the perl stack and call tpreturn for you.
+2) They must return 5 parameters corresponding to the parameters of the tpreturn endurox function.  You don't call tpreturn directly from a perl sub endurox service.  When the sub returns, the PERLSVR will extract the return values from the perl stack and call tpreturn for you.
 
 
 
-Below is the perlsvr.pl that is included with this distribution.  It demonstrates how to write and advertise two simple perl subs that act as tuxedo services.
+Below is the perlsvr.pl that is included with this distribution.  It demonstrates how to write and advertise two simple perl subs that act as endurox services.
 
-  use Tuxedo;
+  use Endurox;
   
   sub TOUPPER {
       my ($tpsvcinfo) = @_;
@@ -394,20 +380,20 @@ B<Future versions of this module will include>
 
 =item * B<workstation and native modules>
 
-Different modules will exist for native and workstation tuxedo development.  Currently native is the default.
+Different modules will exist for native and workstation endurox development.  Currently native is the default.
 
-=item * B<An object oriented tuxedo interface>
+=item * B<An object oriented endurox interface>
 
-Version 1 of the Tuxedo module only presented an object oriented interface to the user.  This version of the Tuxedo module presents the original C interface to make perl tuxedo development easier for experienced tuxedo programmers.  The object oriented interface will co-exist with the C interface in a future version of this module.
+Version 1 of the Endurox module only presented an object oriented interface to the user.  This version of the Endurox module presents the original C interface to make perl endurox development easier for experienced endurox programmers.  The object oriented interface will co-exist with the C interface in a future version of this module.
 
 =back
 
 =head1 'C' STYLE INTERFACE
 
-An example is probably the best way to demonstrate the interface provided by the Tuxedo perl module for writing tuxedo programs.  The following example shows how to connect to a tuxedo system and make a service call.
+An example is probably the best way to demonstrate the interface provided by the Endurox perl module for writing endurox programs.  The following example shows how to connect to a endurox system and make a service call.
 
 
-  use Tuxedo;
+  use Endurox;
   use tpadm;
 
   my $password = "password";
@@ -422,28 +408,28 @@ An example is probably the best way to demonstrate the interface provided by the
   $tpinitbfr->usrname( "Anthony" );
   $tpinitbfr->cltname( "PERL" );
   $tpinitbfr->data( $password );
-  $tpinitbfr->passwd( "tuxedo" );
+  $tpinitbfr->passwd( "endurox" );
   $tpinitbfr->flags( TPMULTICONTEXTS );
 
-  # connect to tuxedo
+  # connect to endurox
   if ( tpinit( $tpinitbfr ) == -1 ) {
      die "tpinit failed: " . tpstrerror(tperrno) . "\n";
   }
 
-  # allocate FML32 buffers
-  my $inbuf = tpalloc( "FML32", 0, 1024 );
-  my $outbuf = tpalloc( "FML32", 0, 1024 );
+  # allocate UBF buffers
+  my $inbuf = tpalloc( "UBF", 0, 1024 );
+  my $outbuf = tpalloc( "UBF", 0, 1024 );
   if ( $inbuf == undef || $outbuf == undef ) {
     die "tpalloc failed: " . tpstrerror(tperrno) . "\n";
   }
 
-  # populate the FML32 inbuf
+  # populate the UBF inbuf
   $rc = Fappend32( $inbuf, TA_CLASS, "T_CLIENT", 0 );
   if ( $rc == -1 ) {
-    die "Fappend failed: " . Fstrerror32(Ferror32) . "\n";
+    die "Fappend failed: " . Bstrerror(Berror) . "\n";
   }
   $rc = Fappend32( $inbuf, TA_OPERATION, "GET", 0 );
-  $rc = Findex32( $inbuf, 0 );
+  $rc = Bindex( $inbuf, 0 );
 
   # call the .TMIB service
   $rc = tpcall( ".TMIB", $inbuf, 0, $outbuf, $olen, 0 );
@@ -452,16 +438,16 @@ An example is probably the best way to demonstrate the interface provided by the
   }
 
   # print the returned buffer
-  tuxputenv( "FIELDTBLS32=tpadm" );
-  tuxputenv( "FLDTBLDIR32=" . tuxgetenv("TUXDIR") . "/udataobj" );
-  Fprint32( $outbuf );
+  ndrxputenv( "FIELDTBLS32=tpadm" );
+  ndrxputenv( "FLDTBLDIR32=" . ndrxgetenv("NDRX_HOME") . "/udataobj" );
+  Bprint( $outbuf );
 
-  # disconnect from tuxedo
+  # disconnect from endurox
   tpterm();
 
 =head1 OBJECT WRAPPING OF C STRUCTURES
 
-The Tuxedo module provides perl objects for creating and reading/writing elements of tuxedo C structures.  The objects and methods available are...
+The Endurox module provides perl objects for creating and reading/writing elements of endurox C structures.  The objects and methods available are...
 
 =over 2
 
@@ -728,21 +714,21 @@ following.
   $tpinitbfr->usrname( "Anthony" );
   $tpinitbfr->cltname( "PERL" );
 
-In this example, tpalloc returns a reference to a TPINIT_PTR object which has usrname, cltname and other methods available to modify the contents of the underlying TPINIT buffer.  If you allocate an FML32 buffer, tpalloc will return a FBFR32_PTR object which has different methods available to manipulate buffer contents.  
+In this example, tpalloc returns a reference to a TPINIT_PTR object which has usrname, cltname and other methods available to modify the contents of the underlying TPINIT buffer.  If you allocate an UBF buffer, tpalloc will return a UBFH_PTR object which has different methods available to manipulate buffer contents.  
 
-Another benefit of this approach is that a DESTROY method is automatically called when the reference count of each tuxedo buffer becomes zero, so that any allocated memory is consequently automatically freed for you.
+Another benefit of this approach is that a DESTROY method is automatically called when the reference count of each endurox buffer becomes zero, so that any allocated memory is consequently automatically freed for you.
 
 =head1 CALLBACK SUBS
 
-The Tuxedo module allows you to create perl subs that are registered as unsolicited message and signal handers.  The example below demonstrates how to do this.
+The Endurox module allows you to create perl subs that are registered as unsolicited message and signal handers.  The example below demonstrates how to do this.
 
   # create a sub to use as an unsolicited message handler
   sub unsol_msg_handler
   {
     my( $buffer, $len, $flags ) = @_;
 
-    # assume the recieved message is an FML32 buffer
-    Fprint32( $buffer );
+    # assume the recieved message is an UBF buffer
+    Bprint( $buffer );
 
     printf( "unsol_msg_handler called!\n" );
   }
@@ -754,28 +740,28 @@ The Tuxedo module allows you to create perl subs that are registered as unsolici
     printf( "caught SIGUSR2\n" );
   }
 
-  # register unsol_msg_hander with tuxedo
+  # register unsol_msg_hander with endurox
   tpsetunsol( \&unsol_msg_handler );
 
-  # register sigusr2_handler with tuxedo.  SIGUSR2 is 17
+  # register sigusr2_handler with endurox.  SIGUSR2 is 17
   Usignal( 17, \&sigusr2 );
 
-=head1 FML/FML32 FIELD TABLE SUPPORT
+=head1 UBF/UBF FIELD TABLE SUPPORT
 
-This version of the perl module also includes a useful utility script, mkfldpm32.pl, which is the perl equivalent of mkfldhdr32.  It will parse a field table file and create a .pm file that you can include in any perl scripts to access fields in an FML/FML32 buffer directly by id instead of name.
+This version of the perl module also includes a useful utility script, mkfldpm32.pl, which is the perl equivalent of mkfldhdr32.  It will parse a field table file and create a .pm file that you can include in any perl scripts to access fields in an UBF/UBF buffer directly by id instead of name.
 
 =head1 Exported constants
     
-    BADFLDID
-    FLD_CARRAY
-    FLD_CHAR
-    FLD_DOUBLE
-    FLD_FLOAT
-    FLD_FML32
-    FLD_LONG
+    BBBADFLDID
+    BFLD_CARRAY
+    BFLD_CHAR
+    BFLD_DOUBLE
+    BFLD_FLOAT
+    FLD_UBF
+    BFLD_LONG
     FLD_PTR
-    FLD_SHORT
-    FLD_STRING
+    BFLD_SHORT
+    BFLD_STRING
     FLD_VIEW32
     TP_CMT_COMPLETE
     TP_CMT_LOGGED
@@ -896,6 +882,6 @@ Anthony Fryer, apfryer@hotmail.com
 =head1 SEE ALSO
 
 perl(1).
-http://e-docs.bea.com/tuxedo/tux81/interm/ref.htm
+http://e-docs.bea.com/endurox/ndrx81/interm/ref.htm
 
 =cut

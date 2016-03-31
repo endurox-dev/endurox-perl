@@ -8,7 +8,7 @@
 
 BEGIN { $| = 1; print "1..1\n"; }
 END {print "not ok 1\n" unless $loaded;}
-use Tuxedo;
+use Endurox;
 use tpadm;
 use testflds;
 require "genubbconfig.pl";
@@ -19,12 +19,12 @@ require "genubbconfig.pl";
 # of the test code):
 
 ###################################################################
-# Create a ubbconfig and boot the tuxedo system that this test
-# script will connect to as a workstation tuxedo client.
+# Create a ubbconfig and boot the endurox system that this test
+# script will connect to as a workstation endurox client.
 ###################################################################
-tuxputenv( "TUXCONFIG=" . get_tuxconfig() );
-$path = tuxgetenv( "PATH" );
-tuxputenv( "PATH=$path;./blib/arch/auto/Tuxedo" );
+ndrxputenv( "NDRXCONFIG=" . get_ndrxconfig() );
+$path = ndrxgetenv( "PATH" );
+ndrxputenv( "PATH=$path;./blib/arch/auto/Endurox" );
 system( "tmshutdown -y" );
 
 gen_ubbconfig();
@@ -37,7 +37,7 @@ print "ok 1\n";
 ######################### End of black magic.
 
 ###################################################################
-# Connect to the tuxedo system
+# Connect to the endurox system
 ###################################################################
 # TEST 1: tpalloc
 my $password = "00000031". "\377" . "0" . "\377" . "utp_tester1" . "\377"  . "utputp1" . "\377";
@@ -49,7 +49,7 @@ if ( $buffer == undef ) {
 $buffer->usrname( "utp_tester1" );
 $buffer->cltname( "perl" );
 $buffer->flags( TPMULTICONTEXTS );
-$buffer->passwd( "SVTuxedo" );
+$buffer->passwd( "SVEndurox" );
 $buffer->data( $password );
 print "usrname: " . $buffer->usrname . "\n";
 print "cltname: " . $buffer->cltname . "\n";
@@ -69,9 +69,9 @@ print "TYPE:    " . $type . "\n";
 print "SUBTYPE: " . $subtype . "\n";
 print "ok 3\n";
 
-# TEST 3: tuxputenv and tuxgetenv
+# TEST 3: ndrxputenv and ndrxgetenv
 
-print "TUXCONFIG = " . tuxgetenv( "TUXCONFIG" ) . "\n";
+print "NDRXCONFIG = " . ndrxgetenv( "NDRXCONFIG" ) . "\n";
 
 # TEST 4: tpinit, tperrno and tpstrerror
 my $rval = tpinit( $buffer );
@@ -83,98 +83,98 @@ if ( $rval == -1 ) {
 # Make some MIB service calls
 ###################################################################
 # TEST: Fappend32
-my $infml32 = tpalloc( "FML32", 0, 1024 );
-my $outfml32 = tpalloc( "FML32", 0, 1024 );
-if ( $infml32 == undef || $outfml32 == undef ) {
+my $inubf = tpalloc( "UBF", 0, 1024 );
+my $outubf = tpalloc( "UBF", 0, 1024 );
+if ( $inubf == undef || $outubf == undef ) {
     die "tpalloc failed: " . tpstrerror(tperrno) . "\n";
 }
 
-#$rval = Fappend32( $infml32, BADFLDID, 12345, 0 );
+#$rval = Fappend32( $inubf, BBBADFLDID, 12345, 0 );
 #if ( $rval == -1 ) {
-#    print "Fappend32 failed: " . Fstrerror32( Ferror32 ) . "\n";
+#    print "Fappend32 failed: " . Bstrerror( Berror ) . "\n";
 #}
 
-$rval = Fappend32( $infml32, TA_CLASS, "T_CLIENT", 0 );
-$rval = Fappend32( $infml32, TA_OPERATION, "GET", 0 );
-$rval = Findex32( $infml32, 0 );
-print "Findex32 returned " . $rval . "\n";
+$rval = Fappend32( $inubf, TA_CLASS, "T_CLIENT", 0 );
+$rval = Fappend32( $inubf, TA_OPERATION, "GET", 0 );
+$rval = Bindex( $inubf, 0 );
+print "Bindex returned " . $rval . "\n";
 
-tuxputenv( "FIELDTBLS32=tpadm" );
-tuxputenv( "FLDTBLDIR32=" . tuxgetenv("TUXDIR") . "/udataobj" );
-$rval = Fprint32( $infml32 );
+ndrxputenv( "FIELDTBLS32=tpadm" );
+ndrxputenv( "FLDTBLDIR32=" . ndrxgetenv("NDRX_HOME") . "/udataobj" );
+$rval = Bprint( $inubf );
 
 print "calling tpcall...\n";
-$rval = tpcall( ".TMIB", $infml32, 0, $outfml32, $olen, 0 );
+$rval = tpcall( ".TMIB", $inubf, 0, $outubf, $olen, 0 );
 if ( $rval == -1 ) {
     die ( "tpcall failed: " . tpstrerror(tperrno) . ".\n" );
 }
-$rval = Fprint32( $outfml32 );
+$rval = Bprint( $outubf );
 print "finished tpcall\n";
 print "Press <enter> to continue...";
 #$line = <STDIN>;
 
 print "calling tpacall...\n";
-$cd = tpacall( ".TMIB", $infml32, 0, 0 );
+$cd = tpacall( ".TMIB", $inubf, 0, 0 );
 if ( $cd == -1 ) {
     die ( "tpacallfailed: " . tpstrerror(tperrno) . ".\n" );
 }
 
-$rval = tpgetrply( $rcd, $outfml32, $olen, TPGETANY );
+$rval = tpgetrply( $rcd, $outubf, $olen, TPGETANY );
 if ( $rval == -1 ) {
     die ( "tpgetrply failed: " . tpstrerror(tperrno) . ".\n" );
 }
-$rval = Fprint32( $outfml32 );
+$rval = Bprint( $outubf );
 print "finished tpacall\n";
 print "Press <enter> to continue...";
 #$line = <STDIN>;
 
 
-$rval = Fget32( $outfml32, TA_OCCURS, 0, $val, $len );
+$rval = Bget( $outubf, TA_OCCURS, 0, $val, $len );
 if ( $rval == -1 ) { 
-    die ( "Fget32 failed: " . Fstrerror32(Ferror32) . ".\n" );
+    die ( "Bget failed: " . Bstrerror(Berror) . ".\n" );
 }
 print "TA_OCCURS = " . $val . "\n";
 
-# TEST : embedded FML32 buffers
-$childfml32 = tpalloc( "FML32", 0, 1024 );
-Fadd32( $childfml32, TA_CLASS, "CHILD", 0 );
-Fadd32( $childfml32, TA_OPERATION, "BUFFER", 0 );
+# TEST : embedded UBF buffers
+$childubf = tpalloc( "UBF", 0, 1024 );
+Badd( $childubf, TA_CLASS, "CHILD", 0 );
+Badd( $childubf, TA_OPERATION, "BUFFER", 0 );
 
-$parentfml32 = tpalloc( "FML32", 0, 1024 );
-$rval = Fadd32( $parentfml32, TEST_FML32, $childfml32, 0 );
+$parentubf = tpalloc( "UBF", 0, 1024 );
+$rval = Badd( $parentubf, TEST_UBF, $childubf, 0 );
 if ( $rval == -1 ) {
-    die ( "Fadd32 failed: " . Fstrerror32(Ferror32) . "\n" ) 
+    die ( "Badd failed: " . Bstrerror(Berror) . "\n" ) 
 }
 
-Fadd32( $parentfml32, TEST_DOUBLE, 123.432, 0 );
-Fprint32( $parentfml32 );
+Badd( $parentubf, TEST_DOUBLE, 123.432, 0 );
+Bprint( $parentubf );
 
 #my $val, $len;
-$rval = Fget32( $parentfml32, TEST_FML32, 0, $val, $len );
+$rval = Bget( $parentubf, TEST_UBF, 0, $val, $len );
 if ( $rval == -1 ) {
-    die ( "Fget32 failed: " . Fstrerror32(Ferror32) . "\n" ) 
+    die ( "Bget failed: " . Bstrerror(Berror) . "\n" ) 
 }
-Fprint32( $val );
+Bprint( $val );
 $tempvar = $val;
-$rval = Fget32( $parentfml32, TEST_DOUBLE, 0, $val, $len );
+$rval = Bget( $parentubf, TEST_DOUBLE, 0, $val, $len );
 print "val = " . $val . "\n";
 print "len = " . $len . "\n";
 
 
 # TEST: CLIENTID ptr
 
-$fml32in = tpalloc( "FML32", 0, 1024 );
-Fadd32( $fml32in, TA_CLASS, "T_CLIENT", 0 );
-Fadd32( $fml32in, TA_OPERATION, "GET", 0 );
+$ubfin = tpalloc( "UBF", 0, 1024 );
+Badd( $ubfin, TA_CLASS, "T_CLIENT", 0 );
+Badd( $ubfin, TA_OPERATION, "GET", 0 );
 printf( "MIB_SELF = " . MIB_SELF . "\n" );
-Fadd32( $fml32in, TA_FLAGS, MIB_SELF, 0 );
-Fprint32( $fml32in );
-$rval = tpcall( ".TMIB", $fml32in, 0, $fml32in, $len, 0 );
+Badd( $ubfin, TA_FLAGS, MIB_SELF, 0 );
+Bprint( $ubfin );
+$rval = tpcall( ".TMIB", $ubfin, 0, $ubfin, $len, 0 );
 if ( $rval == -1 ) {
     die ( "tpcall failed: " . tpstrerror(tperrno) . "\n" );
 }
-Fprint32( $fml32in );
-$rval = Fget32( $fml32in, TA_CLIENTID, 0, $ta_clientid, $len );
+Bprint( $ubfin );
+$rval = Bget( $ubfin, TA_CLIENTID, 0, $ta_clientid, $len );
 printf( "TA_CLIENTID = $ta_clientid\n" );
 
 #$rval = tpconvert( $ta_clientid, $clientid, TPCONVCLTID );
@@ -202,7 +202,7 @@ printf ( "clientid->clientdata = @clientdata\n" );
 printf ( "tpqctl->flags = " . $tpqctl->flags . "\n" );
 
 # TEST tpexport
-$rval = tpexport( $fml32in, 0, $ostr, $olen, 0 );
+$rval = tpexport( $ubfin, 0, $ostr, $olen, 0 );
 if ( $rval == -1 ) {
     die ( "tpexport failed: " . tpstrerror(tperrno) . "\n" );
 }
@@ -210,16 +210,16 @@ printf( "ostr = $ostr\n" );
 printf( "olen = $olen\n" );
 
 # TEST tpimport
-$importbuf = tpalloc( "FML32", 0, 1024 );
+$importbuf = tpalloc( "UBF", 0, 1024 );
 $rval = tpimport( $ostr, $olen, $importbuf, $olen, 0 );
 if ( $rval == -1 ) {
     die ( "tpimport failed: " . tpstrerror(tperrno) . "\n" );
 }
 printf( "After tpimport...\n" );
-Fprint32( $importbuf );
+Bprint( $importbuf );
 
 #$importbuf = tprealloc( $importbuf, 2056 );
-$rval = Fget32( $importbuf, TA_CLIENTID, 0, $ta_clientid, $len );
+$rval = Bget( $importbuf, TA_CLIENTID, 0, $ta_clientid, $len );
 printf( "TA_CLIENTID = $ta_clientid\n" );
 printf( "done\n" );
 
@@ -256,8 +256,8 @@ printf( "tpscmt returned $rval\n" );
 tpsetunsol( \&pants );
 $clientid = CLIENTID_PTR::new();
 $rval = tpconvert( $ta_clientid, $clientid, TPCONVCLTID );
-$unsolbuf = tpalloc( "FML32", 0, 1024 );
-Fadd32( $unsolbuf, TA_CLASS, "Fat mofo", 0 );
+$unsolbuf = tpalloc( "UBF", 0, 1024 );
+Badd( $unsolbuf, TA_CLASS, "Fat mofo", 0 );
 $rval = tpnotify( $clientid, $unsolbuf, 0, 0 );
 if ( $rval == -1 ) {
     die ( "tpnotify failed: " . tpstrerror(tperrno) . "\n" );
@@ -297,7 +297,7 @@ if ( $rval == -1 ) {
     print "tpterm failed: " . tpstrerror(tperrno) . "\n";
 }
 
-userlog( "Finished test of activetux for perl." . "  You are FAT!" );
+userlog( "Finished test of activendrx for perl." . "  You are FAT!" );
 
 system( "tmshutdown -y" );
 
@@ -306,7 +306,7 @@ exit(0);
 sub pants
 {
     my( $buffer, $len, $flags ) = @_;
-    Fprint32( $buffer );
+    Bprint( $buffer );
     printf( "Inside PANTS!\n" );
 }
 

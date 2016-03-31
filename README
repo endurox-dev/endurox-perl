@@ -1,16 +1,16 @@
-The documentation on the Tuxedo perl module can be viewed 
-by running perdoc Tuxedo.pm.
+The documentation on the Endurox perl module can be viewed 
+by running perdoc Endurox.pm.
 
-To build the Tuxedo module, you must have 
+To build the Endurox module, you must have 
 
-- Tuxedo7.1 or later must be installed.  All my build tests have been
-  with Tuxedo8.0 and Tuxedo8.1.
+- Endurox7.1 or later must be installed.  All my build tests have been
+  with Endurox8.0 and Endurox8.1.
 
-- a valid tuxedo development license should be in $TUXDIR/udataobj
+- a valid endurox development license should be in $NDRX_HOME/udataobj
 
-- $TUXDIR must set in your environment
+- $NDRX_HOME must set in your environment
 
-- $TUXDIR/bin must be in your PATH environment variable
+- $NDRX_HOME/bin must be in your PATH environment variable
 
 - The same compiler used to build perl must also be in your PATH
 

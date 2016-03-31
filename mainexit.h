@@ -10,17 +10,17 @@
 // the DLL and use the internal address, tpadvertise fails because it compares
 // the function address passed to tpadvertise, with function addresses stored
 // in the dispatch table.  This causes a problem with the framework because
-// the _DISPATCH_ function is contained in the libtuxfmwk.dll file on WIN32
-// and the TuxedoServer failed to advertise the registered servlets to this
+// the _DISPATCH_ function is contained in the libndrxfmwk.dll file on WIN32
+// and the EnduroxServer failed to advertise the registered servlets to this
 // function.
 //
-// The work around is to define TMMAINEXIT when building a tuxedo server on
+// The work around is to define TMMAINEXIT when building a endurox server on
 // WIN32.  That will make the BS-xxx.c file include mainexit.h.  This is our
 // version of mainexit.h.  Because this file is included in BS-xxx.c, we can
 // access any of the structures declared in BS-xxx.c, including the dispatch
 // table.  So here, we just store the address of the dispatch table in a
-// variable within the Tuxedo perl module dll!  Then when we get around to
-// advertising registered TuxedoServlets, we look up the dispatch table for
+// variable within the Endurox perl module dll!  Then when we get around to
+// advertising registered EnduroxServlets, we look up the dispatch table for
 // the external address of the PERL function, and use that in tpadvertise.
 // Works a treat!
 */

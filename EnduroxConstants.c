@@ -1,7 +1,7 @@
 /*
- * TuxedoConstants.c
+ * EnduroxConstants.c
  *
- * This file contains a map of name/value pairs relating to tuxedo constants.
+ * This file contains a map of name/value pairs relating to endurox constants.
  * The map structure (namedConstants)contains a hash key that is used to 
  * locate the named value.  The first time a lookup occurs, the map structure 
  * is initialized and the hash values for all the entries in the map are 
@@ -19,8 +19,7 @@
 
 #include <string.h>
 #include <atmi.h>
-#include <fml32.h>
-#include <tpadm.h>
+#include <ubf.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -48,44 +47,15 @@ NamedConstant namedConstants[] =
     { 0, "TPNOTRAN", TPNOTRAN },
     { 0, "TPTRAN", TPTRAN },
     { 0, "TPNOTIME", TPNOTIME },
-    { 0, "TPABSOLUTE", TPABSOLUTE },
     { 0, "TPGETANY", TPGETANY },
     { 0, "TPNOCHANGE", TPNOCHANGE },
     { 0, "TPCONV", TPCONV },
     { 0, "TPSENDONLY", TPSENDONLY },
     { 0, "TPRECVONLY", TPRECVONLY },
-    { 0, "TPACK", TPACK },
 
     /* flags to tpreturn() */
     { 0, "TPFAIL", TPFAIL },
-    { 0, "TPSUCCESS", TPSUCCESS },
-    { 0, "TPEXIT", TPEXIT },
-
-    /* flags to tpscmt() */
-    { 0, "TP_CMT_LOGGED", TP_CMT_LOGGED },
-    { 0, "TP_CMT_COMPLETE", TP_CMT_COMPLETE },
-
-    /* flags to tpinit() */
-    { 0, "TPU_MASK", TPU_MASK },
-    { 0, "TPU_SIG", TPU_SIG },
-    { 0, "TPU_DIP", TPU_DIP },
-    { 0, "TPU_IGN", TPU_IGN },
-    { 0, "TPSA_FASTPATH", TPSA_FASTPATH },
-    { 0, "TPSA_PROTECTED", TPSA_PROTECTED },
-    { 0, "TPMULTICONTEXTS", TPMULTICONTEXTS },
-    { 0, "TPU_THREAD", TPU_THREAD },
-
-    /* flags to tpconvert() */
-    { 0, "TPTOSTRING", TPTOSTRING },
-    { 0, "TPCONVCLTID", TPCONVCLTID },
-    { 0, "TPCONVTRANID", TPCONVTRANID },
-    { 0, "TPCONVXID", TPCONVXID },
-    { 0, "TPCONVMAXSTR", TPCONVMAXSTR },
-
-    /* return values to tpchkauth */
-    { 0, "TPNOAUTH", TPNOAUTH },
-    { 0, "TPSYSAUTH", TPSYSAUTH },
-    { 0, "TPAPPAUTH", TPAPPAUTH },
+    { 0, "TPSUCCESS", TPSUCCESS },   
 
     /* tperrno values */
     { 0, "TPEABORT", TPEABORT },
@@ -114,51 +84,15 @@ NamedConstant namedConstants[] =
     { 0, "TPEDIAGNOSTIC", TPEDIAGNOSTIC },
     { 0, "TPEMIB", 	TPEMIB },
 
-    /* fml constants */
-    { 0, "FLD_SHORT",  FLD_SHORT },
-    { 0, "FLD_LONG",   FLD_LONG },
-    { 0, "FLD_CHAR",   FLD_CHAR },
-    { 0, "FLD_FLOAT",  FLD_FLOAT },
-    { 0, "FLD_DOUBLE", FLD_DOUBLE },
-    { 0, "FLD_STRING", FLD_STRING },
-    { 0, "FLD_CARRAY", FLD_CARRAY },
-    { 0, "FLD_PTR",    FLD_PTR },
-    { 0, "FLD_FML32",  FLD_FML32 },
-    { 0, "FLD_VIEW32", FLD_VIEW32 },
-    { 0, "BADFLDID", BADFLDID },
-    { 0, "MIB_ALLFLAGS", MIB_ALLFLAGS },
-    { 0, "MIB_LOCAL", MIB_LOCAL },
-    { 0, "MIB_PREIMAGE", MIB_PREIMAGE },
-    { 0, "MIB_SELF", MIB_SELF },
-    { 0, "MIBATT_KEYFIELD", MIBATT_KEYFIELD },
-    { 0, "MIBATT_LOCAL", MIBATT_LOCAL },
-    { 0, "MIBATT_NEWONLY", MIBATT_NEWONLY },
-    { 0, "MIBATT_REGEXKEY", MIBATT_REGEXKEY },
-    { 0, "MIBATT_REQUIRED", MIBATT_REQUIRED },
-    { 0, "MIBATT_RUNTIME", MIBATT_RUNTIME },
-    { 0, "MIBATT_SETKEY", MIBATT_SETKEY },
-    { 0, "QMIB_FORCECLOSE", QMIB_FORCECLOSE },
-    { 0, "QMIB_FORCEDELETE", QMIB_FORCEDELETE },
-    { 0, "QMIB_FORCEPURGE", QMIB_FORCEPURGE },
-    { 0, "TAEAPP", TAEAPP },
-    { 0, "TAECONFIG", TAECONFIG },
-    { 0, "TAEINVAL", TAEINVAL },
-    { 0, "TAEOS", TAEOS },
-    { 0, "TAEPERM", TAEPERM },
-    { 0, "TAEPREIMAGE", TAEPREIMAGE },
-    { 0, "TAEPROTO", TAEPROTO },
-    { 0, "TAEREQUIRED", TAEREQUIRED },
-    { 0, "TAESUPPORT", TAESUPPORT },
-    { 0, "TAESYSTEM", TAESYSTEM },
-    { 0, "TAEUNIQ", TAEUNIQ },
-    { 0, "TAOK", TAOK },
-    { 0, "TAPARTIAL", TAPARTIAL },
-    { 0, "TAUPDATED", TAUPDATED },
-    { 0, "TMIB_ADMONLY", TMIB_ADMONLY },
-    { 0, "TMIB_APPONLY", TMIB_APPONLY },
-    { 0, "TMIB_CONFIG", TMIB_CONFIG },
-    { 0, "TMIB_GLOBAL", TMIB_GLOBAL },
-    { 0, "TMIB_NOTIFY", TMIB_NOTIFY },
+    /* ubf constants */
+    { 0, "BFLD_SHORT",  BFLD_SHORT },
+    { 0, "BFLD_LONG",   BFLD_LONG },
+    { 0, "BFLD_CHAR",   BFLD_CHAR },
+    { 0, "BFLD_FLOAT",  BFLD_FLOAT },
+    { 0, "BFLD_DOUBLE", BFLD_DOUBLE },
+    { 0, "BFLD_STRING", BFLD_STRING },
+    { 0, "BFLD_CARRAY", BFLD_CARRAY },
+    { 0, "BBADFLDID", BBADFLDID },
 
     /* queue constants */
     { 0, "TPQCORRID", TPQCORRID },
@@ -183,37 +117,7 @@ NamedConstant namedConstants[] =
     { 0, "TPQGETBYCORRID", TPQGETBYCORRID },
     { 0, "TPQQOSDEFAULTPERSIST", TPQQOSDEFAULTPERSIST },
     { 0, "TPQQOSPERSISTENT", TPQQOSPERSISTENT },
-    { 0, "TPQQOSNONPERSISTENT", TPQQOSNONPERSISTENT },
-
-    { 0, "TPKEY_SIGNATURE", TPKEY_SIGNATURE },
-    { 0, "TPKEY_DECRYPT", TPKEY_DECRYPT },
-    { 0, "TPKEY_ENCRYPT", TPKEY_ENCRYPT },
-    { 0, "TPKEY_VERIFICATION", TPKEY_VERIFICATION },
-    { 0, "TPKEY_AUTOSIGN", TPKEY_AUTOSIGN },
-    { 0, "TPKEY_AUTOENCRYPT", TPKEY_AUTOENCRYPT },
-    { 0, "TPKEY_REMOVE", TPKEY_REMOVE },
-    { 0, "TPKEY_REMOVEALL", TPKEY_REMOVEALL },
-    { 0, "TPKEY_VERIFY", TPKEY_VERIFY },
-    { 0, "TPEX_STRING", TPEX_STRING },
-    { 0, "TPSEAL_OK", TPSEAL_OK },
-    { 0, "TPSEAL_PENDING", TPSEAL_PENDING },
-    { 0, "TPSEAL_EXPIRED_CERT", TPSEAL_EXPIRED_CERT },
-    { 0, "TPSEAL_REVOKED_CERT", TPSEAL_REVOKED_CERT },
-    { 0, "TPSEAL_TAMPERED_CERT", TPSEAL_TAMPERED_CERT },
-    { 0, "TPSEAL_UNKNOWN", TPSEAL_UNKNOWN },
-    { 0, "TPSIGN_OK", TPSIGN_OK },
-    { 0, "TPSIGN_PENDING", TPSIGN_PENDING },
-    { 0, "TPSIGN_EXPIRED", TPSIGN_EXPIRED },
-    { 0, "TPSIGN_EXPIRED_CERT", TPSIGN_EXPIRED_CERT },
-    { 0, "TPSIGN_POSTDATED", TPSIGN_POSTDATED },
-    { 0, "TPSIGN_REVOKED_CERT", TPSIGN_REVOKED_CERT },
-    { 0, "TPSIGN_TAMPERED_CERT", TPSIGN_TAMPERED_CERT },
-    { 0, "TPSIGN_TAMPERED_MESSAGE", TPSIGN_TAMPERED_MESSAGE },
-    { 0, "TPSIGN_UNKNOWN", TPSIGN_UNKNOWN },
-
-    { 0, "TPNULLCONTEXT", TPNULLCONTEXT	 },
-    { 0, "TPINVALIDCONTEXT", TPINVALIDCONTEXT	 },
-    { 0, "TPSINGLECONTEXT", TPSINGLECONTEXT		 }
+    { 0, "TPQQOSNONPERSISTENT", TPQQOSNONPERSISTENT }
 
 #ifndef WIN32
     ,{ 0, "SIGHUP", SIGHUP },
@@ -223,7 +127,6 @@ NamedConstant namedConstants[] =
     { 0, "SIGTRAP", SIGTRAP },
     { 0, "SIGIOT", SIGIOT },
     { 0, "SIGABRT", SIGABRT },
-    { 0, "SIGEMT", SIGEMT },
     { 0, "SIGFPE", SIGFPE },
     { 0, "SIGKILL", SIGKILL },
     { 0, "SIGBUS", SIGBUS },
@@ -316,7 +219,7 @@ static int compare( const void *a, const void *b )
 
 static int tableInitialized = 0;
 
-void InitTuxedoConstants()
+void InitEnduroxConstants()
 {
     u4 hashVal = 0;
     long tableSize = sizeof(namedConstants)/sizeof(NamedConstant);
@@ -341,7 +244,7 @@ void InitTuxedoConstants()
 }
 
 long 
-getTuxedoConstant( char *name )
+getEnduroxConstant( char *name )
 {
     NamedConstant key, * nc;
     key.name = name;

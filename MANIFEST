@@ -2,9 +2,9 @@ Changes
 MANIFEST
 Makefile.PL
 mainexit.h
-Tuxedo.pm
-Tuxedo.xs
-TuxedoConstants.c
+Endurox.pm
+Endurox.xs
+EnduroxConstants.c
 README
 tpadm.pm
 testflds.pm

@@ -19,7 +19,7 @@ else
 	chomp ( $cwd = `pwd` );
 }
 
-my $tuxconfig = $cwd . "\/TUXCONFIG";
+my $ndrxconfig = $cwd . "\/NDRXCONFIG";
 
 ################################################
 
@@ -88,9 +88,9 @@ sub get_ipckey()
     return "$ipckey";
 }
 
-sub get_tuxconfig()
+sub get_ndrxconfig()
 {
-    return $tuxconfig;
+    return $ndrxconfig;
 }
 
 sub get_wsnaddr()
@@ -125,16 +125,16 @@ sub gen_ubbconfig()
             $hostname;
         /eg;
 
-        s/<TUXDIR>/
-            $ENV{TUXDIR};
+        s/<NDRX_HOME>/
+            $ENV{NDRX_HOME};
         /eg;
 
         s/<APPDIR>/
             $pwd;
         /eg;
 
-        s/<TUXCONFIG>/
-            get_tuxconfig();
+        s/<NDRXCONFIG>/
+            get_ndrxconfig();
         /eg;
 
         s/<WSNADDR>/
@@ -160,7 +160,7 @@ sub gen_ubbconfig()
 #	print `cat ubbconfig`;
 #}
 
-#$ENV{TUXCONFIG} = get_tuxconfig();
+#$ENV{NDRXCONFIG} = get_ndrxconfig();
 #system( "tmshutdown -y" );
 #system( "tmloadcf -y ubbconfig" );
 #system( "tmboot -y" );

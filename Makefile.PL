@@ -23,21 +23,21 @@ my $dynaloader_lib = join " ", @tmp;
 $ldopts =~ s/\s-L\S*//g;
 
 my %opts = (
-    NAME         => 'Tuxedo',
-    VERSION_FROM => 'Tuxedo.pm',
-    'C'          => [ 'TuxedoConstants.c', 'perlxsi.c' ],
-    'OBJECT'     => 'TuxedoConstants.o Tuxedo.o perlxsi.o',
-    'INC'        => "-I $ENV{TUXDIR}/include",
+    NAME         => 'Endurox',
+    VERSION_FROM => 'Endurox.pm',
+    'C'          => [ 'EnduroxConstants.c', 'perlxsi.c' ],
+    'OBJECT'     => 'EnduroxConstants.o Endurox.o perlxsi.o',
+    'INC'        => "-I $ENV{NDRX_HOME}/include",
     'DL_FUNCS'   => { "\$(NAME)" => ["boot_\$(NAME)" ] },
     'FUNCLIST'   => [ "PERL", "tpsvrinit", "tpsvrdone", "settmsvrargs" ],
-    'clean'      => { FILES => "ULOG.* ubbconfig TUXCONFIG *.tar.gz stderr stdout" }
+    'clean'      => { FILES => "ULOG.* ubbconfig NDRXCONFIG *.tar.gz stderr stdout" }
 );
 
 
-# --- How shall we link with Tuxedo?
+# --- How shall we link with Endurox?
 if ( $os eq 'MSWin32' )
 {
-    $opts{LIBS} = [ "-L$ENV{TUXDIR}/lib -llibtux -llibbuft -llibfml -llibfml32 -llibengine -lwsock32 -lkernel32 -ladvapi32 -luser32 -lgdi32 -lcomdlg32 -lwinspool" ];
+    $opts{LIBS} = [ "-L$ENV{NDRX_HOME}/lib -llibndrx -llibbuft -llibubf -llibubf -llibengine -lwsock32 -lkernel32 -ladvapi32 -luser32 -lgdi32 -lcomdlg32 -lwinspool" ];
     $opts{DEFINE} = "-D__TURBOC__";
 }
 
@@ -48,7 +48,7 @@ else
     @buildclient_options = split( / /, $buildclient_cmd ); 
     @lib_options = grep /-[LlR]/, @buildclient_options;
     $libs = join " ", @lib_options;
-    $libs =~ s/\${TUXDIR}/$ENV{TUXDIR}/;
+    $libs =~ s/\${NDRX_HOME}/$ENV{NDRX_HOME}/;
     #print "libs = $libs\n";
     $opts{LIBS} = [ $libs ];
     $opts{LDDLFLAGS} = $Config{lddlflags} . " " . $dynaloader_lib;
@@ -62,7 +62,7 @@ sub MY::postamble
     my $string = <<EOS;
 
 ###########################################################
-# PERLSVR - perl interpretor tuxedo server
+# PERLSVR - perl interpretor endurox server
 ###########################################################
 PERL_EMBED_LIBS=$ldopts
 
@@ -78,7 +78,7 @@ EOS
 }
 else {
 	$string = $string . <<EOS;
-	CC="$Config{cc} $libpaths"; export CC; \$(TUXDIR)/bin/buildserver -o \$@ -s ":PERL" -f "\$(INST_DYNAMIC)" -f "\$(PERL_EMBED_LIBS)"
+	CC="$Config{cc} $libpaths"; export CC; \$(NDRX_HOME)/bin/buildserver -o \$@ -s ":PERL" -f "\$(INST_DYNAMIC)" -f "\$(PERL_EMBED_LIBS)"
 EOS
 }
 

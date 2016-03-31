@@ -3,17 +3,15 @@
 #include "XSUB.h"
 
 #include <atmi.h>
-#include <fml32.h>
-#include <fml.h>
-#include <tx.h>
+#include <ubf.h>
+#include <ubf.h>
 #include <xa.h>
-#include <Usignal.h>
 #include <userlog.h>
 
 /*----------------------------------------------------------------------------
- * definitions
+ * debinitions
  *----------------------------------------------------------------------------*/
-#define PERL_TUXEDO_ERROR       (-0x0FFFFFFF)
+#define PERL_ENDUROX_ERROR       (-0x0FFFFFFF)
 
 #ifdef is_cplusplus
 #  ifndef EXTERN_C
@@ -28,23 +26,22 @@
 /*----------------------------------------------------------------------------
  * function prototypes
  *----------------------------------------------------------------------------*/
-void InitTuxedoConstants();
-long getTuxedoConstant( char *name );
+void InitEnduroxConstants();
+long getEnduroxConstant( char *name );
 void xs_init _((void));
 
 /*----------------------------------------------------------------------------
- * type definitions
+ * type debinitions
  *----------------------------------------------------------------------------*/
 typedef char *          CHAR_PTR;
 typedef char *          STRING_PTR;
 typedef TPINIT *        TPINIT_PTR;
-typedef FBFR32 *        FBFR32_PTR;
+typedef UBFH *        UBFH_PTR;
 typedef CLIENTID *      CLIENTID_PTR;
 typedef TPTRANID *      TPTRANID_PTR;
 typedef XID *           XID_PTR;
 typedef TPQCTL *        TPQCTL_PTR;
 typedef TPEVCTL *       TPEVCTL_PTR;
-typedef TXINFO *        TXINFO_PTR;
 typedef TPSVCINFO *     TPSVCINFO_PTR;
 
 
@@ -58,14 +55,10 @@ static HV * SignalHandlerMap      = (HV *)NULL;
 /*----------------------------------------------------------------------------
  * 'C' functions used by this module
  *----------------------------------------------------------------------------*/
-void _TMDLLENTRY
-unsolicited_message_handler( data, len, flags )
-    char * data;
-    long len;
-    long flags;
+void  unsolicited_message_handler( char *data, long len, long flags )
 {
     long context = 0;
-    long nullContext = TPNULLCONTEXT;
+    long nullContext = /*TPNULLCONTEXT*/0;
     int rval;
     dSP ;
     SV ** sv;
@@ -202,8 +195,8 @@ int buffer_setref( SV * sv, char *buffer )
     {
         if ( !strcmp(type, "TPINIT") )
             sv_setref_pv(sv, "TPINIT_PTR", (void*)buffer);
-        else if ( !strcmp(type, "FML32") )
-            sv_setref_pv(sv, "FBFR32_PTR", (void*)buffer);
+        else if ( !strcmp(type, "UBF") )
+            sv_setref_pv(sv, "UBFH_PTR", (void*)buffer);
         else if ( !strcmp(type, "STRING") )
             sv_setref_pv(sv, "STRING_PTR", (void*)buffer);
         else
@@ -233,8 +226,10 @@ int tpsvrinit( int argc, char *argv[] )
     }
 
     perl_construct( embedded_perl );
-
+/* mv  porting to enduro/x: 
     rc = perl_parse( embedded_perl, xs_init, 2, embedding, NULL );
+*/
+    rc = perl_parse( embedded_perl, NULL, 2, embedding, NULL );
     if ( rc != 0 )
     {
         userlog( "Failed to parse perlsvr.pl" );
@@ -266,7 +261,7 @@ void PERL( TPSVCINFO * tpsvcinfo )
 
     /* return values from perl function call */
     int rval    = TPFAIL;
-    long rcode  = PERL_TUXEDO_ERROR;
+    long rcode  = PERL_ENDUROX_ERROR;
     char *data  = NULL;
     long len    = 0;
     long flags  = 0;
@@ -334,7 +329,7 @@ void PERL( TPSVCINFO * tpsvcinfo )
         /* extract return values from the stack in reverse order */
         flags = POPl; len = POPl; rData = POPs; rcode = POPl; rval = POPi; 
 
-        /* rData must be a reference to a tuxedo buffer */
+        /* rData must be a reference to a endurox buffer */
         if ( SvROK(rData) ) 
         {
             data = (CHAR_PTR)SvIV((SV*)SvRV(rData));
@@ -349,7 +344,7 @@ void PERL( TPSVCINFO * tpsvcinfo )
                          );
             }
             rval   = TPFAIL; 
-            rcode  = PERL_TUXEDO_ERROR; 
+            rcode  = PERL_ENDUROX_ERROR; 
             data   = data; 
             len    = 0; 
             flags  = 0; 
@@ -364,35 +359,16 @@ void PERL( TPSVCINFO * tpsvcinfo )
     tpreturn( rval, rcode, data, len, flags );
 }
 
-typedef void (* TUXEDOSERVICE)(TPSVCINFO *);
-TUXEDOSERVICE gdispatch = PERL;
-
-static struct tmsvrargs_t * gtmsvrargs = NULL;
-EXTERN_C
-void settmsvrargs( struct tmsvrargs_t * tmsvrargs )
-{
-	int i;
-	gtmsvrargs = tmsvrargs;
-
-	for ( i = 0; tmsvrargs->tmdsptchtbl[i].funcname != NULL; i++ )
-	{
-		if ( !strcmp(tmsvrargs->tmdsptchtbl[i].funcname, "PERL") )
-		{
-				gdispatch = tmsvrargs->tmdsptchtbl[i].svcfunc;
-				break;
-		}
-	}
-	
-}
-
+typedef void (* ENDUROXSERVICE)(TPSVCINFO *);
+ENDUROXSERVICE gdispatch = PERL;
 
 /*-----------------------------------------------------------------------------
  * xsub functions 
  *----------------------------------------------------------------------------*/
-MODULE = Tuxedo    PACKAGE = Tuxedo        
+MODULE = Endurox    PACKAGE = Endurox        
 
 BOOT:
-    InitTuxedoConstants();
+    InitEnduroxConstants();
 
 
 long
@@ -400,7 +376,7 @@ constant( name, arg )
     char * name
     int arg
     CODE:
-        RETVAL = getTuxedoConstant( name );
+        RETVAL = getEnduroxConstant( name );
     OUTPUT:
         RETVAL
 
@@ -452,8 +428,8 @@ tpalloc(type,subtype,size)
         {
             if ( !strcmp(type, "TPINIT") )
                 sv_setref_pv(ST(0), "TPINIT_PTR", (void*)ptr);
-            else if ( !strcmp(type, "FML32") )
-                sv_setref_pv(ST(0), "FBFR32_PTR", (void*)ptr);
+            else if ( !strcmp(type, "UBF") )
+                sv_setref_pv(ST(0), "UBFH_PTR", (void*)ptr);
             else if ( !strcmp(type, "STRING") )
                 sv_setref_pv(ST(0), "STRING_PTR", (void*)ptr);
             else
@@ -555,87 +531,6 @@ tpconnect( svc, data, len, flags )
         RETVAL
 
 int
-tpconvert( strrep, binrep, flags )
-    SV * strrep
-    SV * binrep
-    long flags
-    PREINIT:
-        char * strrep_ = NULL;
-        char * binrep_ = NULL;
-        char tostring[TPCONVMAXSTR + 1];
-        STRLEN    n_a;
-    CODE:
-        if ( flags & TPTOSTRING )
-        {
-            /* binrep is the source, strrep is the dest */
-            if (!SvROK(binrep)) 
-                croak("binrep is not a reference");
-            binrep_ = (CHAR_PTR)SvIV((SV*)SvRV(binrep));
-            RETVAL = tpconvert( tostring, binrep_, flags );
-            sv_setpv( strrep, tostring );
-        }
-        else
-        {
-            /* strrep is the source, binrep is the dest */
-            if ( !SvPOK(strrep) )
-	        croak("strrep is not a string");
-            strrep_ = SvPV( strrep, n_a );
-
-            if ( flags & TPCONVCLTID )
-            {
-                if ( SvROK(binrep) && sv_isa(binrep, "CLIENTID_PTR") )
-                {
-                    binrep_ = (CHAR_PTR)SvIV((SV*)SvRV(binrep));
-                    RETVAL = tpconvert( strrep_, binrep_, flags );
-                }
-                else
-                {
-                    /* binrep_ = calloc( 1, sizeof(CLIENTID) ); */
-                    binrep_ = malloc( sizeof(CLIENTID) );
-                    memset( binrep_, 0, sizeof(CLIENTID) );
-                    RETVAL = tpconvert( strrep_, binrep_, flags );
-                    sv_setref_pv( binrep, "CLIENTID_PTR", binrep_ );
-                }
-            }
-
-            else if ( flags & TPCONVTRANID )
-            {
-                if ( SvROK(binrep) && sv_isa(binrep, "TPTRANID_PTR") )
-                {
-                    binrep_ = (CHAR_PTR)SvIV((SV*)SvRV(binrep));
-                    RETVAL = tpconvert( strrep_, binrep_, flags );
-                }
-                else
-                {
-                    /* binrep_ = calloc( 1, sizeof(TPTRANID) ); */
-                    binrep_ = malloc( sizeof(CLIENTID) );
-                    memset( binrep_, 0, sizeof(CLIENTID) );
-                    RETVAL = tpconvert( strrep_, binrep_, flags );
-                    sv_setref_pv( binrep, "TPTRANID_PTR", binrep_ );
-                }
-            }
-
-            else if ( flags & TPCONVXID )
-            {
-                if ( SvROK(binrep) && sv_isa(binrep, "XID_PTR") )
-                {
-                    binrep_ = (CHAR_PTR)SvIV((SV*)SvRV(binrep));
-                    RETVAL = tpconvert( strrep_, binrep_, flags );
-                }
-                else
-                {
-                    /* binrep_ = calloc( 1, sizeof(XID) ); */
-                    binrep_ = malloc( sizeof(CLIENTID) );
-                    memset( binrep_, 0, sizeof(CLIENTID) );
-                    RETVAL = tpconvert( strrep_, binrep_, flags );
-                    sv_setref_pv( binrep, "XID_PTR", binrep_ );
-                }
-            }
-        }
-    OUTPUT:
-        RETVAL
-    
-int
 tpdequeue( qspace, qname, ctl, data, len, flags )
     char * qspace
     char * qname
@@ -682,49 +577,6 @@ tperrno()
         RETVAL = tperrno;
     OUTPUT:
         RETVAL
-
-int
-tperrordetail( flags )
-    long flags
-
-int
-tpexport( ibuf, ilen, ostr, olen, flags )
-    CHAR_PTR ibuf
-    long ilen
-    SV * ostr
-    long olen
-    long flags
-    PREINIT:
-    char * ostr_ = NULL;
-    CODE:
-        olen = 1024;
-        ostr_ = malloc( olen );
-        if ( ostr_ == NULL )
-            croak( "tpexort: malloc( %ld ) failed.\n", olen );
-
-        RETVAL = tpexport( ibuf, ilen, ostr_, &olen, flags );
-
-        if ( RETVAL == -1 && tperrno == TPELIMIT )
-        {
-            ostr_ = realloc( ostr_, olen );
-            if ( ostr_ == NULL )
-            {
-                croak( "tpexort: realloc( 0x%p, %ld ) failed.\n",
-                        ostr_, 
-                        olen
-                        );
-            }
-
-            RETVAL = tpexport( ibuf, ilen, ostr_, &olen, flags );
-        }
-
-        if ( RETVAL != -1 )
-            sv_setpvn( ostr, ostr_, olen );
-
-        free( ostr_ );
-    OUTPUT:
-        RETVAL
-        olen
 
 void
 tpfree( ptr )
@@ -954,11 +806,6 @@ char *
 tpstrerror( error )
     int error
 
-char *
-tpstrerrordetail( err, flags )
-    int err
-    long flags
-
 long
 tpsubscribe( eventexpr, filter, ctl, flags )
     char * eventexpr
@@ -1048,7 +895,7 @@ tpcall( svc, idata, ilen, odata, len, flags )
          */
 	sv_setiv(SvRV(odata), (IV)obuf);
 
-        if ( RETVAL == TPFAIL && tpurcode == PERL_TUXEDO_ERROR )
+        if ( RETVAL == TPFAIL && tpurcode == PERL_ENDUROX_ERROR )
         {
             croak( "tpcall failed with server side perl error: %s", obuf );
         }
@@ -1068,120 +915,27 @@ tpacall( svc, idata, ilen, flags )
     OUTPUT:
         RETVAL
 
-char *
-tuxgetenv( name )
-    char * name
-    
-int
-tuxputenv( string )
-    char * string
-
-int
-tx_begin()
-
-int
-tx_close()
-
-int
-tx_commit()
-
-int
-tx_info( info )
-    TXINFO_PTR info
-
-int
-tx_open()
-
-int
-tx_rollback()
-
-int
-tx_set_commit_return( when_return )
-    long when_return
-
-int
-tx_set_transaction_control( control )
-    long control
-
-int
-tx_set_transaction_timeout( timeout )
-    long timeout
-
-void
-Usignal( signum, callback )
-    int signum
-    SV * callback
-    CODE:
-    if ( SignalHandlerMap == (HV*)NULL )
-        SignalHandlerMap = newHV();
-
-    hv_store( SignalHandlerMap, 
-              (char*)&signum, 
-              sizeof(signum), 
-              newSVsv(callback),
-              0
-              );
-    Usignal( signum, signal_handler );
-
 int
 userlog( message )
     char * message
 
 int
-Ferror32()
+Berror()
     CODE:
-        RETVAL = Ferror32;
+        RETVAL = Berror;
     OUTPUT:
         RETVAL
 
 char *
-Fstrerror32( err )
+Bstrerror( err )
     int err
     
 int
-Fappend32( fbfr, fieldid, value, len )
-    FBFR32_PTR  fbfr
-    FLDID32     fieldid
+Badd( ubfh, fieldid, value, len )
+    UBFH_PTR  ubfh
+    BFLDID     fieldid
     SV *        value
-    FLDLEN32    len
-    PREINIT:
-    IV          iv_val;
-    double      nv_val;
-    char *      pv_val;
-    STRLEN      pv_len;
-    char *      value_ptr;
-    CODE:
-        if ( SvROK( value ) )
-        {
-	    IV tmp = SvIV((SV*)SvRV(ST(0)));
-	    value_ptr = (char *) tmp;
-        }
-        else if ( SvIOK(value) )
-        {
-            iv_val = SvIV( value );
-            value_ptr = (char *)&iv_val;
-        }
-        else if ( SvNOK(value) )
-        {
-            nv_val = SvNV( value );
-            value_ptr = (char *)&nv_val;
-        }
-        else if ( SvPOK(value) )
-        {
-            pv_val = SvPV( value, pv_len );
-            value_ptr = pv_val;
-        }
-
-        RETVAL = Fappend32( fbfr, fieldid, value_ptr, len );
-    OUTPUT:
-        RETVAL
-
-int
-Fadd32( fbfr, fieldid, value, len )
-    FBFR32_PTR  fbfr
-    FLDID32     fieldid
-    SV *        value
-    FLDLEN32    len
+    BFLDLEN    len
     PREINIT:
     IV          iv_val;
     double      nv_val;
@@ -1210,15 +964,15 @@ Fadd32( fbfr, fieldid, value, len )
             value_ptr = pv_val;
         }
 
-        RETVAL = Fadd32( fbfr, fieldid, value_ptr, len );
+        RETVAL = Badd( ubfh, fieldid, value_ptr, len );
     OUTPUT:
         RETVAL
 
 int
-Fget32( fbfr, fieldid, oc, loc, maxlen )
-    FBFR32_PTR  fbfr
-    FLDID32     fieldid
-    FLDOCC32    oc
+Bget( ubfh, fieldid, oc, loc, maxlen )
+    UBFH_PTR  ubfh
+    BFLDID     fieldid
+    BFLDOCC    oc
     SV *        loc
     SV *    maxlen
     PREINIT:
@@ -1228,60 +982,42 @@ Fget32( fbfr, fieldid, oc, loc, maxlen )
     short       sval;
     float       fval;
     double      dval;
-    FLDLEN32    len = 0;
+    BFLDLEN    len = 0;
     CODE:
         /* get the length of the field */
-        val = Ffind32( fbfr, fieldid, oc, &len );
+        val = Bfind( ubfh, fieldid, oc, &len );
         if ( val != NULL )
         {
-            switch ( Fldtype32(fieldid) )
+            switch ( Bfldtype(fieldid) )
             {
-                case FLD_SHORT:
-                    Fget32( fbfr, fieldid, oc, (char *)&sval, &len );
+                case BFLD_SHORT:
+                    Bget( ubfh, fieldid, oc, (char *)&sval, &len );
                     sv_setiv( loc, sval );
                     break;
 
-                case FLD_LONG:
-                    Fget32( fbfr, fieldid, oc, (char *)&lval, &len );
+                case BFLD_LONG:
+                    Bget( ubfh, fieldid, oc, (char *)&lval, &len );
                     sv_setiv( loc, lval );
                     break;
 
-                case FLD_CHAR:
-                    Fget32( fbfr, fieldid, oc, (char *)&cval, &len );
+                case BFLD_CHAR:
+                    Bget( ubfh, fieldid, oc, (char *)&cval, &len );
                     sv_setiv( loc, cval );
                     break;
 
-                case FLD_FLOAT:
-                    Fget32( fbfr, fieldid, oc, (char *)&fval, &len );
+                case BFLD_FLOAT:
+                    Bget( ubfh, fieldid, oc, (char *)&fval, &len );
                     sv_setnv( loc, fval) ;
                     break;
 
-                case FLD_DOUBLE:
-                    Fget32( fbfr, fieldid, oc, (char *)&dval, &len );
+                case BFLD_DOUBLE:
+                    Bget( ubfh, fieldid, oc, (char *)&dval, &len );
                     sv_setnv( loc, dval );
                     break;
 
-                case FLD_STRING:
-                case FLD_CARRAY:
+                case BFLD_STRING:
+                case BFLD_CARRAY:
                     sv_setpvn( loc, val, len );
-                    break;
-
-                case FLD_PTR:
-                    sv_setref_pv( loc, Nullch, (void*)val );
-                    break;
-
-                case FLD_FML32:
-                    val = tpalloc( "FML32", 0, len );
-                    if ( val == NULL )
-                    {
-                        RETVAL = -1;
-                        break;
-                    }
-                    sv_setref_pv(loc , "FBFR32_PTR", (void*)val );
-                    RETVAL = Fget32( fbfr, fieldid, oc, val, &len );
-                    break;
-
-                case FLD_VIEW32:
                     break;
             }
 
@@ -1300,22 +1036,22 @@ Fget32( fbfr, fieldid, oc, loc, maxlen )
         loc
 
 int
-Findex32( fbfr, intvl )
-    FBFR32_PTR fbfr
-    FLDOCC32   intvl
+Bindex( ubfh, intvl )
+    UBFH_PTR ubfh
+    BFLDOCC   intvl
 
 int
-Fprint32( fbfr )
-    FBFR32_PTR fbfr
+Bprint( ubfh )
+    UBFH_PTR ubfh
 
-FLDID32
-Fmkfldid32( type, num )
+BFLDID
+Fmkbbadfld( type, num )
     int type
-    FLDID32 num
+    BFLDID num
 
 
 
-MODULE = Tuxedo        PACKAGE = CHAR_PTR        
+MODULE = Endurox        PACKAGE = CHAR_PTR        
 
 void
 DESTROY( char_ptr )
@@ -1329,7 +1065,7 @@ DESTROY( char_ptr )
             /* printf( "finished calling tpfree\n" ); */
         }
 
-MODULE = Tuxedo        PACKAGE = STRING_PTR        
+MODULE = Endurox        PACKAGE = STRING_PTR        
 
 char *
 value( obj, ... )
@@ -1366,7 +1102,7 @@ value( obj, ... )
         RETVAL
 
 
-MODULE = Tuxedo        PACKAGE = TPINIT_PTR        
+MODULE = Endurox        PACKAGE = TPINIT_PTR        
 
 char *
 usrname( obj, ... )
@@ -1479,10 +1215,10 @@ data( obj, ... )
         RETVAL
 
 
-MODULE = Tuxedo        PACKAGE = FBFR32_PTR        
+MODULE = Endurox        PACKAGE = UBFH_PTR        
 
 
-MODULE = Tuxedo        PACKAGE = CLIENTID_PTR
+MODULE = Endurox        PACKAGE = CLIENTID_PTR
 
 void
 new()
@@ -1533,7 +1269,7 @@ clientdata( obj, ... )
             PUSHs( sv_2mortal(newSViv( obj->clientdata[i])) );
 
 
-MODULE = Tuxedo        PACKAGE = TPTRANID_PTR
+MODULE = Endurox        PACKAGE = TPTRANID_PTR
 void
 new()
     PREINIT:
@@ -1560,31 +1296,7 @@ DESTROY( tptranid_ptr )
             /* printf( "finished calling free.\n" ); */
         }
 
-void
-info( obj, ... )
-    TPTRANID_PTR obj
-    PREINIT:
-        long arraysize;
-        int i;
-    PPCODE:
-        arraysize = sizeof(obj->info)/sizeof(long);
-        if ( items > 1 )
-        {
-            if ( items > (arraysize + 1) )
-                croak( "More than %d elements provided for clientdata.\n",
-                        arraysize
-                        );
-
-            for ( i = 1; i < items; i++ )
-                obj->info[i-1] = SvIV((SV*)ST(i));
-        }
-
-        EXTEND(SP, arraysize);
-        for ( i = 0; i < arraysize; i++ )
-            PUSHs( sv_2mortal(newSViv( obj->info[i])) );
-
-
-MODULE = Tuxedo        PACKAGE = XID_PTR
+MODULE = Endurox        PACKAGE = XID_PTR
 void
 new()
     PREINIT:
@@ -1656,7 +1368,7 @@ data( obj, ... )
     OUTPUT:
         RETVAL
 
-MODULE = Tuxedo        PACKAGE = TPQCTL_PTR
+MODULE = Endurox        PACKAGE = TPQCTL_PTR
 
 void
 new()
@@ -1840,7 +1552,7 @@ exp_time( obj, ... )
     OUTPUT:
         RETVAL
 
-MODULE = Tuxedo        PACKAGE = TPEVCTL_PTR
+MODULE = Endurox        PACKAGE = TPEVCTL_PTR
 
 void
 new()
@@ -1900,89 +1612,7 @@ name2( obj, ... )
     OUTPUT:
         RETVAL
 
-void 
-qctl( obj, ... )
-    TPEVCTL_PTR obj
-    CODE:
-        ST(0) = sv_newmortal();
-		sv_setref_pv(ST(0), "TPQCTL_PTR", (void*)&obj->qctl);
-        SvREFCNT_inc( SvRV(ST(0)) );
-
-MODULE = Tuxedo        PACKAGE = TXINFO_PTR
-
-void
-new()
-    PREINIT:
-        char *ptr;
-    CODE:
-        /* ptr = calloc( 1, sizeof(TXINFO) ); */
-        ptr = malloc( sizeof(TXINFO) );
-        memset( ptr, 0, sizeof(TXINFO) );
-        ST(0) = sv_newmortal();
-        if ( ptr != NULL )
-            sv_setref_pv(ST(0), "TXINFO_PTR", ptr);
-        else
-            ST(0) = &PL_sv_undef;
-
-void
-DESTROY( obj )
-    TXINFO_PTR  obj
-    CODE:
-        if ( obj != NULL )
-        {
-            /* printf( "%s:%d free( 0x%p )\n", __FILE__, __LINE__, obj ); */
-            free( (char *)obj );
-        }
-
-void 
-xid( obj, ... )
-    TXINFO_PTR obj
-    CODE:
-        ST(0) = sv_newmortal();
-		sv_setref_pv(ST(0), "XID_PTR", (void*)&obj->xid);
-        SvREFCNT_inc( SvRV(ST(0)) );
-
-long 
-when_return( obj, ... )
-    TXINFO_PTR obj
-    CODE:
-        if ( items > 1 )
-            obj->when_return = (long)SvIV((SV*)ST(1));
-        RETVAL = obj->when_return;
-    OUTPUT:
-        RETVAL
-
-long 
-transaction_control( obj, ... )
-    TXINFO_PTR obj
-    CODE:
-        if ( items > 1 )
-            obj->transaction_control = (long)SvIV((SV*)ST(1));
-        RETVAL = obj->transaction_control;
-    OUTPUT:
-        RETVAL
-
-long 
-transaction_timeout( obj, ... )
-    TXINFO_PTR obj
-    CODE:
-        if ( items > 1 )
-            obj->transaction_timeout = (long)SvIV((SV*)ST(1));
-        RETVAL = obj->transaction_timeout;
-    OUTPUT:
-        RETVAL
-
-long 
-transaction_state( obj, ... )
-    TXINFO_PTR obj
-    CODE:
-        if ( items > 1 )
-            obj->transaction_state = (long)SvIV((SV*)ST(1));
-        RETVAL = obj->transaction_state;
-    OUTPUT:
-        RETVAL
-
-MODULE = Tuxedo        PACKAGE = TPSVCINFO_PTR
+MODULE = Endurox        PACKAGE = TPSVCINFO_PTR
 
 void 
 data( obj )

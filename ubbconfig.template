@@ -6,17 +6,17 @@ MASTER          <HOSTNAME>
 *MACHINES
 "<HOSTNAME>"
                 LMID="<HOSTNAME>"
-                TUXDIR="<TUXDIR>"
+                NDRX_HOME="<NDRX_HOME>"
                 APPDIR="<APPDIR>"
-                TUXCONFIG="<TUXCONFIG>"
+                NDRXCONFIG="<NDRXCONFIG>"
                 MAXWSCLIENTS=10
 
 *GROUPS
-TUXGRP          LMID=<HOSTNAME> GRPNO=1
+NDRXGRP          LMID=<HOSTNAME> GRPNO=1
 APPGRP          LMID=<HOSTNAME> GRPNO=2
 
 *SERVERS
-#WSL             SRVID=1 SRVGRP=TUXGRP
+#WSL             SRVID=1 SRVGRP=NDRXGRP
 #                CLOPT="-A -- -n <WSNADDR>"
 
 PERLSVR         SRVID=1 SRVGRP=APPGRP

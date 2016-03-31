@@ -1,5 +1,5 @@
 #! perl -Iblib/arch -Iblib/lib
-use Tuxedo;
+use Endurox;
 
 $numargs = @ARGV;
 if ( $numargs == 0 )
@@ -16,7 +16,7 @@ while ( $index < $numargs )
 
     # check the file exists
     unless ( -e $fldtbl ) {
-        die( "CMDFML_CAT:2:ERROR: Cannot find file " . $fldtbl . "\n" );
+        die( "CMDUBF_CAT:2:ERROR: Cannot find file " . $fldtbl . "\n" );
     }
 
     # open the fldtbl for reading
@@ -46,7 +46,7 @@ while ( $index < $numargs )
         else
         {
             # line should be in the format...
-            # <FLDNAME> <FLDNUM> <FLDTYPE> [# comment]
+            # <FLDNAME> <FLDNUM> <BFLDTYPE> [# comment]
             @words = split( /\s+/, $line );
             if ( @words < 3 )
             {
@@ -57,36 +57,36 @@ while ( $index < $numargs )
             $fldname = $words[0];
             $fldnum  = $words[1];
             $type = $words[2];
-            $fldtype = 0;
+            $bfldtype = 0;
             if ( $type eq "short" ) {
-                $fldtype = FLD_SHORT;
+                $bfldtype = BFLD_SHORT;
             }
             elsif ( $type eq "long" ) {
-                $fldtype = FLD_LONG;
+                $bfldtype = BFLD_LONG;
             }
             elsif ( $type eq "char" ) {
-                $fldtype = FLD_CHAR;
+                $bfldtype = BFLD_CHAR;
             }
             elsif ( $type eq "float" ) {
-                $fldtype = FLD_FLOAT;
+                $bfldtype = BFLD_FLOAT;
             }
             elsif ( $type eq "double" ) {
-                $fldtype = FLD_DOUBLE;
+                $bfldtype = BFLD_DOUBLE;
             }
             elsif ( $type eq "string" ) {
-                $fldtype = FLD_STRING;
+                $bfldtype = BFLD_STRING;
             }
             elsif ( $type eq "carray" ) {
-                $fldtype = FLD_CARRAY;
+                $bfldtype = BFLD_CARRAY;
             }
             elsif ( $type eq "ptr" ) {
-                $fldtype = FLD_PTR;
+                $bfldtype = FLD_PTR;
             }
-            elsif ( $type eq "fml32" ) {
-                $fldtype = FLD_FML32;
+            elsif ( $type eq "ubf" ) {
+                $bfldtype = FLD_UBF;
             }
             elsif ( $type eq "view32" ) {
-                $fldtype = FLD_VIEW32;
+                $bfldtype = FLD_VIEW32;
             }
             else {
                 # something is wrong, skip this line
@@ -94,8 +94,8 @@ while ( $index < $numargs )
             }
 
             $fldnum += $base;
-            $fldid = Fmkfldid32( $fldtype, $fldnum );
-            $fields{$fldname} = $fldid;
+            $bfldid = Fmkbbadfld( $bfldtype, $fldnum );
+            $fields{$fldname} = $bfldid;
         }
     }
 

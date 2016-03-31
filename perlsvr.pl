@@ -1,5 +1,5 @@
 #! perl -Iblib/arch -Iblib/lib
-use Tuxedo;
+use Endurox;
 
 sub TOUPPER {
     my ($tpsvcinfo) = @_;
