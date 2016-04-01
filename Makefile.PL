@@ -50,7 +50,8 @@ else
     $libs = join " ", @lib_options;
     $libs =~ s/\${NDRX_HOME}/$ENV{NDRX_HOME}/;
     #print "libs = $libs\n";
-    $opts{LIBS} = [ $libs ];
+    #$opts{LIBS} = [ $libs ];
+    $opts{LIBS} = [ "-latmisrv -latmiclt -latmi -lubf -lnstd -ldl -lrt -lm -lc" ];
     $opts{LDDLFLAGS} = $Config{lddlflags} . " " . $dynaloader_lib;
 }
 

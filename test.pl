@@ -14,27 +14,6 @@ use testflds;
 require "genubbconfig.pl";
 
 
-# Insert your test code below (better if it prints "ok 13"
-# (correspondingly "not ok 13") depending on the success of chunk 13
-# of the test code):
-
-###################################################################
-# Create a ubbconfig and boot the endurox system that this test
-# script will connect to as a workstation endurox client.
-###################################################################
-ndrxputenv( "NDRXCONFIG=" . get_ndrxconfig() );
-$path = ndrxgetenv( "PATH" );
-ndrxputenv( "PATH=$path;./blib/arch/auto/Endurox" );
-system( "tmshutdown -y" );
-
-gen_ubbconfig();
-if ( system( "tmloadcf -y ubbconfig" ) ) { die "tmloadcf failed\n"; }
-system( "tmboot -y" );
-
-$loaded = 1;
-print "ok 1\n";
-
-######################### End of black magic.
 
 ###################################################################
 # Connect to the endurox system
@@ -48,7 +27,6 @@ if ( $buffer == undef ) {
 
 $buffer->usrname( "utp_tester1" );
 $buffer->cltname( "perl" );
-$buffer->flags( TPMULTICONTEXTS );
 $buffer->passwd( "SVEndurox" );
 $buffer->data( $password );
 print "usrname: " . $buffer->usrname . "\n";

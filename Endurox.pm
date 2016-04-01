@@ -392,9 +392,6 @@ An example is probably the best way to demonstrate the interface provided by the
     die ( "tpcall failed: " . tpstrerror(tperrno) . ".\n" );
   }
 
-  # print the returned buffer
-  ndrxputenv( "FIELDTBLS32=tpadm" );
-  ndrxputenv( "FLDTBLDIR32=" . ndrxgetenv("NDRX_HOME") . "/udataobj" );
   Bprint( $outbuf );
 
   # disconnect from endurox
